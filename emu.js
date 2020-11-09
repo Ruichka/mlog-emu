@@ -18,12 +18,12 @@ class Emulator {
   // Must be executed every 1/60th of second (if processor is enabled)
   tick() {
     for (var i=0;i<this.ipt;i++) {
-      var toinc, tohlt = this.instruction(this.prog[this.counter]);
-      if (tohlt) {
+      var toact = this.instruction(this.prog[this.counter]);
+      if (toact[1]) {
         this.resetProc();
         return;
       }
-      if (toinc) {
+      if (toact[0]) {
         this.counter++;
         this.constants["@counter"] = this.counter;
       };
@@ -32,21 +32,21 @@ class Emulator {
   
   // Execute an instruction
   instruction(instruct) {
-    fields = instruct.split(" ");
+    var fields = instruct.split(" ");
     
     // set variable value - Set a variable to any value
     if (fields[0] == "set") {
       if (fields[1]) {
         if (fields[2]) {
           this.variables[fields[1]] = fields[2]
-          return true, false;
+          return [true, false];
         } else {
           console.warn("Execution error at line " + this.counter + ": Argument #2 is missing");
-          return true, false;
+          return [true, false];
         }
       } else {
         console.warn("Execution error at line " + this.counter + ": No arguments present, atleast 2 required");
-        return true, false;
+        return [true, false];
       };
     };
     
@@ -54,10 +54,10 @@ class Emulator {
     if (fields[0] == "print") {
       if (fields[1]) {
         this.printbuffer.push(fields[1]);
-        return true, false;
+        return [true, false];
       } else {
         console.warn("Execution error at line " + this.counter + ": No arguments present, atleast 1 required");
-        return true, false;
+        return [true, false];
       };
     };
     
@@ -73,16 +73,16 @@ class Emulator {
           console.log(msg);
         };
         this.printbuffer = [];
-        return true, false;
+        return [true, false];
       } else {
-        console.warn("Execution error at line " + counter + ": No arguments present, atleast 1 required");
-        return true, false;
+        console.warn("Execution error at line " + this.counter + ": No arguments present, atleast 1 required");
+        return [true, false];
       };
     };
     
     // If operator does not exists
-    console.warn("Execution error at line " + counter + ": Invaild operator");
-    return true, false;
+    console.warn("Execution error at line " + this.counter + ": Invaild operator");
+    return [true, false];
   };
   
   // Reset the processor to starter settings
