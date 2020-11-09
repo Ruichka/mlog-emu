@@ -7,8 +7,8 @@ class Emulator {
     this.printbuffer = [];
     this.variables = {};
     this.constants = {
-      "@counter": counter,
-      "@ipt": ipt,
+      "@counter": this.counter,
+      "@ipt": this.ipt,
       "@this": {"@health":100, "@x":0, "@y":0}, // Later make it into Block class
       "@thisx": 0,
       "@thisy": 0,
@@ -17,8 +17,8 @@ class Emulator {
   
   // Must be executed every 1/60th of second (if processor is enabled)
   tick() {
-    for (var i=0;i<ipt;i++) {
-      var toinc, tohlt = this.instruction(prog[counter]);
+    for (var i=0;i<this.ipt;i++) {
+      var toinc, tohlt = this.instruction(this.prog[this.counter]);
       if (tohlt) {
         this.resetProc();
         return;
@@ -38,7 +38,7 @@ class Emulator {
     if (fields[0] == "set") {
       if (fields[1]) {
         if (fields[2]) {
-          variables[fields[1]] = fields[2]
+          this.variables[fields[1]] = fields[2]
           return true, false;
         } else {
           console.warn("Execution error at line " + this.counter + ": Argument #2 is missing");
