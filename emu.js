@@ -1,12 +1,12 @@
 class Emulator {
   constructor(code,speed) {
     // Declaring some variables
-    var prog = code;
-    var ipt = speed;
-    var counter = 0;
-    var printbuffer = [];
-    var variables = {};
-    var constants = {
+    this.prog = code;
+    this.ipt = speed;
+    this.counter = 0;
+    this.printbuffer = [];
+    this.variables = {};
+    this.constants = {
       "@counter": counter,
       "@ipt": ipt,
       "@this": {"@health":100, "@x":0, "@y":0}, // Later make it into Block class
@@ -16,22 +16,22 @@ class Emulator {
   };
   
   // Must be executed every 1/60th of second (if processor is enabled)
-  function tick() {
+  tick() {
     for (var i=0;i<ipt;i++) {
-      var toinc, tohlt = instruction(prog[counter]);
+      var toinc, tohlt = this.instruction(prog[counter]);
       if (tohlt) {
-        resetProc();
+        this.resetProc();
         return;
       }
       if (toinc) {
-        counter++;
-        constants["@counter"] = counter;
+        this.counter++;
+        this.constants["@counter"] = this.counter;
       };
     };
   };
   
   // Execute an instruction
-  function instruction(instruct) {
+  instruction(instruct) {
     fields = instruct.split(" ");
     
     // set variable value - Set a variable to any value
@@ -41,11 +41,11 @@ class Emulator {
           variables[fields[1]] = fields[2]
           return true, false;
         } else {
-          console.warn("Execution error at line " + counter + ": Argument #2 is missing");
+          console.warn("Execution error at line " + this.counter + ": Argument #2 is missing");
           return true, false;
         }
       } else {
-        console.warn("Execution error at line " + counter + ": No arguments present, atleast 2 required");
+        console.warn("Execution error at line " + this.counter + ": No arguments present, atleast 2 required");
         return true, false;
       };
     };
@@ -53,10 +53,10 @@ class Emulator {
     // print text - Adding some text to print buffer
     if (fields[0] == "print") {
       if (fields[1]) {
-        printbuffer.push(fields[1]);
+        this.printbuffer.push(fields[1]);
         return true, false;
       } else {
-        console.warn("Execution error at line " + counter + ": No arguments present, atleast 1 required");
+        console.warn("Execution error at line " + this.counter + ": No arguments present, atleast 1 required");
         return true, false;
       };
     };
@@ -64,15 +64,15 @@ class Emulator {
     // printflush messageblock - Flushing the print buffer
     if (fields[0] == "printflush") {
       if (fields[1]) {
-        // message1 is currently works as console.log, will be changed when multi-component system will be present
+        // message1 currently works as console.log, will be changed when multi-component system will be present
         if (fields[1] == "message1") {
-          msg = ""
-          for (a=0;a<printbuffer.length;a++) {
-            msg = msg + printbuffer[a]
+          var msg = ""
+          for (var a=0;a<this.printbuffer.length;a++) {
+            msg = msg + this.printbuffer[a]
           };
           console.log(msg);
         };
-        printbuffer = [];
+        this.printbuffer = [];
         return true, false;
       } else {
         console.warn("Execution error at line " + counter + ": No arguments present, atleast 1 required");
@@ -86,7 +86,7 @@ class Emulator {
   };
   
   // Reset the processor to starter settings
-  function resetProc() {
+  resetProc() {
     // TODO
   };
 };
